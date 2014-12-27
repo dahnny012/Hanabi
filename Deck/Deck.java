@@ -16,13 +16,18 @@ public class Deck{
 				{
 					System.out.println("New card in Deck failed " + valStart + " " + color);
 				}
+				deck.add(gameCard);
 			}
 		}
 		
 	}
 	public Cards draw()
 	{
-		
+		if(deck.size() == 0)
+		{
+			return null;
+		}
+		return deck.remove(0);
 	}
 	public void shuffle()
 	{
@@ -30,13 +35,25 @@ public class Deck{
 			System.out.println("Null Deck");
 			return;
 		}
-		/*
-		To shuffle an array a of n elements (indices 0..n-1):
-  for i from n − 1 downto 1 do
-       j ← random integer with 0 ≤ j ≤ i
-       exchange a[j] and a[i]*/
-		
-		
+		int size = deck.size()
+		for(int i=0; i<size; i++)
+		{
+			j = rand(0,size-1);	
+			swap(i,j);
+		}
+	}
+	private void swap(int i,int j)
+	{
+		Cards temp = deck.get(i);
+		deck.set(i,deck.get(j));
+		deck.set(j,temp);
 	}
 	
+	private static int rando(int min,int max)
+	{
+		Random rand = new Random();
+		int randomNum = rand.nextInt((max - min) + 1) + min;
+		return randomNum;
+
+	}
 }
