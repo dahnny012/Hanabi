@@ -76,10 +76,6 @@ public class GameManager{
 		int picked = NEEDAVALUE;
 		Cards pickedCard = hands[currPlayer][picked];
 		
-		// If type is 0, check if the card can be played.
-		// 	If it can be, play it.
-		//	If it can't, discard it and increment fireworksTokens
-		// If type is 1, discard it.
 		if (type == 0){
 			if (isValidCard(pickedCard)){
 				playCard(pickedCard);
@@ -124,11 +120,7 @@ public class GameManager{
 	// Check if there are 0 cards in the deck and each player has gotten their last turn
 	// Return true if any of the above conditions are true; otherwise false
 	public boolean endGame(){
-		if (fireworksTokens == 3){
-			return true;
-		}else if (score == maxScore){
-			return true;
-		}else if (countdown == 0){
+		if ((fireworksTokens == 3) || (score == maxScore) || (countdown == 0)){
 			return true;
 		}else{
 			return false;
