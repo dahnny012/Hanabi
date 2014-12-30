@@ -1,22 +1,34 @@
 // Most likely will need to import deck
 
 public class Player{
-	private Hand hand[5];
+	private Cards hand[5];
+	public Move move;
 	
-	public Cards play(int index){
-		// check valid hand index
-		// store in temp, then from hand[index]
-		// draw card replace in hand[index];
-		// return temp
+	
+	
+	public Move play(int index){
+		if(!validHandIndex(index)) return null;
+		
+		move = new Move("Play");
+		move.setPlayIndex(index);
+		return move;
 	}
-	public Cards discard(int index){
-		// Discard card in index.
-		// Draw from deck and put in card index
+	public Move discard(int index){
+		if(!validHandIndex(index)) return null;
+		move = new Move("Discard");
+		move.setDiscardIndex(index);
+		return move;
+		
 	}
-	public String tell(Cards.Color color,int value,Player player)
+	public Move hint(Cards.Color color,int value,Player player)
 	{
-		// Color or value will be Null/0.
-		// Tell player some message about his hand.
+		move = new Move("Hint");
+		
+	}
+	
+	public validHandIndex(int index)
+	{
+		return index >= 0 && index < 5;
 	}
 	
 }

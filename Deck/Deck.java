@@ -72,4 +72,9 @@ public class Deck{
 			deck.add(gameCard);
 		}
 	}
+	
+	public int cardsLeft()
+	{
+		return deck.size();
+	}
 }

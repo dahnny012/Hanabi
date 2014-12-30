@@ -3,6 +3,7 @@ public class Board{
     public ArrayList<Player> Players;
     public int fireworksTokens;
     public int timeTokens;
+    public int maxScore =25;
     
     public Board(int numPlayers)
     {
