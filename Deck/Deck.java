@@ -1,26 +1,29 @@
 public class Deck{
 	private ArrayList<Cards> deck;
-	private static Deck()
+	public Deck()
 	{
-		Cards card = new Cards();
-		int valStart = 0;
-		int valEnd = 4;
+		int valStart = 1;
+		int valEnd = 5;
+		int numOnes = 3;
+		int numDefault = 2;
+		int numFives = 1;
 		
-		//Generate a Deck
-		for(valStart; valStart<valEnd; valStart++)
+		for(valStart; valStart<=valEnd; valStart++)
 		{
-			foreach(card.Color color in Enum.GetValues(typeof(card.Color)))
+			foreach(Card.Color color in Enum.GetValues(typeof(Card.Color)))
 			{
-				Cards gameCard = new Cards(valStart,color);
-				if(gameCard == null)
-				{
-					System.out.println("New card in Deck failed " + valStart + " " + color);
+				switch(valStart){
+					case 1:
+						addCards(valStart,color,numOnes);
+					case 5:
+						addCards(valStart,color,numFives);
+					case default:
+						addCards(valStart,color,numDefault);
 				}
-				deck.add(gameCard);
 			}
 		}
-		
 	}
+	
 	public Cards draw()
 	{
 		if(deck.size() == 0)
@@ -55,5 +58,18 @@ public class Deck{
 		int randomNum = rand.nextInt((max - min) + 1) + min;
 		return randomNum;
 
+	}
+	
+	private void addCards(int value , Card.Color color , int numCards)
+	{
+		for (int i =0; i<numCards; i++)
+		{
+			Cards gameCard = new Cards(value,color);
+			if(gameCard == null)
+			{
+				System.out.println("New card in Deck failed " + valStart + " " + color);
+			}
+			deck.add(gameCard);
+		}
 	}
 }
