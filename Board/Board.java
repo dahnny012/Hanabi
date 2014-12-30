@@ -11,7 +11,6 @@ public class Board{
         {
             Players.add(new Player());
         }
-        
         deck = new Deck();
         
         fireworksTokens = 3;
