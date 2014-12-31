@@ -19,10 +19,6 @@ public class Move{
         discardIndex = index;
     }
     
-    public setClueMsg(Player,)
-    {
-        clueMsg = clue;
-    }
     public setPlayIndex(int index)
     {
         playIndex = index;

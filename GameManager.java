@@ -1,22 +1,6 @@
 public class GameManager{
 	
-	// maxScore tracks the maximum possible total with the remaining cards
-	// it does NOT track the maximum possible total with the remaining turns
-	// (eg. if two players, each with hands of five 1s, draw the last card
-	// 	without anything on the board, maxScore = 5, not 2)
-	// We could do it, but I think it's unnecessary work.
-	private int maxScore = 25;
 	
-	// We "should" make this a member of Deck
-	private int cardsLeft = 50;
-	
-	private int score = 0;
-	private int fireworksTokens = 0;
-	private int timeTokens = 8;
-	
-	// currentTurn is an int within [0, n), where n = playerCount
-	private int currPlayer = 0;
-	private int playerCount;
 
 	// board keeps track of the current top number of each of the 5 stacks
 	int[] board	= new int[5];
