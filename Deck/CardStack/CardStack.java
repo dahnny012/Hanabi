@@ -19,8 +19,11 @@ public class CardStack{
     
     public boolean validPlace(Cards card)
     {
-        if(empty() && card.value = 1)
+        if(empty() && card.value == 1)
             return true;
+        if((getTopCard.value - 1) == card.value)
+            return true;
+        return false;
     }
     
     public boolean empty()

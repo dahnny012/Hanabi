@@ -16,16 +16,29 @@ public class Board{
     public boardIndex;
     // currentTurn is an int within [0, n), where n = playerCount
 	private int currPlayer = 0;
-	
-	
-	
-    public Board(int num,int boardIndex)
+	private int gmAddr;
+	private Socket gameManager;
+	public Board(int num,int boardIndex,int gmAddr)
     {
         this.boardIndex = boardIndex;
         deck = new Deck();
         stacksMap = new HashMap();
-        
+        this.gmAddr = gmAddr;
+        //open a socket to gameManager and keep it.
     }
+	
+	public Move playOneTurn()
+	{
+	    askForMove(Players.get(currPlayer));
+	    // Do neccessary actions
+	    // alert game manager to change state of other players.
+	}
+	
+	public Move askForMove(Player current)
+	{
+	   // Get move from player
+	   return null;
+	}
     
     public void addPlayer()
     {
@@ -38,6 +51,7 @@ public class Board{
     {
         gameInProgress = true;
         dealCards();
+        playOneTurn();
     }
     
     public dealCards()
@@ -49,6 +63,15 @@ public class Board{
 			}
 		}
     }
+    
+    public boolean endGame()
+    {
+        if(fireworksTokens >= 3 || countdown == 0 || score == maxScore)
+            return true;
+        return false
+    }
+    
+    
     
     
     
