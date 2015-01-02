@@ -10,6 +10,7 @@ public class App{
 		
 		server.start();
 		gameManager.start();
+		sleep(0);
 	}
 	
 	

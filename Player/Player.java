@@ -5,7 +5,7 @@ public class Player{
 	public Move move;
 	public int maxHandSize =5;
 	public int boardIndex;
-	
+	public View view;
 	public Player(int boardIndex){
 		this.boardIndex = boardIndex; 
 	}

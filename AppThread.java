@@ -3,6 +3,9 @@
 public class AppThread implements Runnable{
     Thread t;
     String name;
+    // Globals dunno how else to do shared memory.
+    static ArrayList<Socket> boardSocket;
+    static ArrayList<Board> board
     public AppThread(String name){
         this.name = name;
         System.out.println("Creating " + name);
@@ -12,18 +15,15 @@ public class AppThread implements Runnable{
         System.out.println("Thread running: " + name);
         if(name.equals("Server"))
         {
-            // Create a server
-            while(true)
-            {
-                
-            }
+            Server server = new Server();
+            // listen for requests
         }
         else if(name.equals("GameManager")){
             
-            // Create a Game manager
-            while(true){
-                
-            }
+            GameManager gm = new GameManager();
+            // Check board for new moves
+                // See what they want to do and write the changes to
+                // to the other players.
         }
     }
     
