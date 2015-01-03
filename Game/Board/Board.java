@@ -1,21 +1,4 @@
-public class Board{
-	public Deck deck;
-	public ArrayList<Player> Players;
-	public int numPlayers;
-	public int fireworksTokens = 3;
-	public int timeTokens = = 8;
-	public boolean gameInProgress = false;
-	// maxScore tracks the maximum possible total with the remaining cards
-	// it does NOT track the maximum possible total with the remaining turns
-	// (eg. if two players, each with hands of five 1s, draw the last card
-	// 	without anything on the board, maxScore = 5, not 2)
-	// We could do it, but I think it's unnecessary work.
-	
-	public int score = 0;
-	public int maxScore = 25;
-	public boardIndex;
-	// currPlayer is an int within [0, n), where n = playerCount
-	private int currPlayer = 0;
+public class Board extends Game{
 	private int gmAddr;
 	private Socket gameManager;
 	
