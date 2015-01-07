@@ -10,25 +10,34 @@ import java.io.*;
 * Write back to players.
 */
 
+class clientSocket extends Socket{
+	public 
+}
+
 public class Server{
-	public static void main(String[] arg)
+	Socket server;
+	
+	public Server(){
+		server = new ServerSocket(8000);
+	}
+	public Socket accept()
 	{
 		try{
-		Server app = new Server();
-		// Server fds
-		ServerSocket server = new ServerSocket(8000);
-		// client fds 
+		//Server app = new Server();
+		
+		// client fd 
 		Socket client;
 			
 	
 		while(true){
 			// Setup the Request and Response stream.
-			client = server.accept();
+			client = accept();
 			PrintWriter resStream = new PrintWriter(client.getOutputStream());
 			BufferedReader reqStream = new BufferedReader(new InputStreamReader(client.getInputStream()));
-			String req;
+			String msg;
 			
-			// Keep printing lines till "quit"
+			// Keep printing lines till "quit"/
+			/*
 			while(true)
 			{
 				req = reqStream.readLine();
@@ -38,10 +47,10 @@ public class Server{
 					{
 						return;
 					}
-					app.log(req);
+					log(req);
 				}
 
-			}
+			}*/
 		}
 		}
 		catch(IOException e){
