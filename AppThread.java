@@ -16,14 +16,24 @@ public class AppThread implements Runnable{
         System.out.println("Thread running: " + name);
         if(name.equals("Server"))
         {
-            Server server = new Server();
+            Server server = new Server(boardSocket,boards);
             while(true){
-                Socket newClient = server.accept();
+                Socket newClient = server.acceptConnection();
                 if(newClient != null)
-                    // If connecting to game
-                        // add to list of sockets at board I.
-                    // If hosting game 
-                        // create board , add to list of sockets.
+                    switch(newClient.req){
+				    case "join":
+				        if(// req for room)
+				    	    showBoards();
+				    	// If they input join 42342 we can assume they had an invite.
+				    	else{
+				    	    connectToBoard(someID);
+				    	}
+				    case "create":
+				    	createBoard()
+				    	writeToClient(boardID);
+				    default:
+				    	// close for now.
+                    }   
             }
         }
         else if(name.equals("GameManager")){
@@ -42,6 +52,11 @@ public class AppThread implements Runnable{
             t.start();
         }
     }
+    
+    public void showBoards(){}
+    public void connectToBoard(int id){}
+    public void createBoard(){}
+    public void writeToClient()
 }
 
 

@@ -11,52 +11,46 @@ import java.io.*;
 */
 
 class clientSocket extends Socket{
-	public 
+	public String req; // Join # or Create.
+	Socket socket
+	public void setReq(String req){
+		this.req = req;
+	}
+	
 }
 
 public class Server{
 	Socket server;
-	
-	public Server(){
+	ArrayList<Socket> boardSocket;
+    ArrayList<Board> boards
+	public Server(ArrayList<Socket> boardSocket,ArrayList<Board> boards){
+		this.boardSocket = boardSocket;
+		this.boards = boards;
 		server = new ServerSocket(8000);
 	}
-	public Socket accept()
+	public Socket acceptConnection()
 	{
 		try{
 		//Server app = new Server();
 		
 		// client fd 
-		Socket client;
-			
-	
-		while(true){
+		clientSocket client;
 			// Setup the Request and Response stream.
 			client = accept();
 			PrintWriter resStream = new PrintWriter(client.getOutputStream());
 			BufferedReader reqStream = new BufferedReader(new InputStreamReader(client.getInputStream()));
-			String msg;
-			
-			// Keep printing lines till "quit"/
-			/*
-			while(true)
-			{
+			String req;
 				req = reqStream.readLine();
-				if(req != null)
-				{
-					if(req.equals("quit"))
-					{
-						return;
-					}
-					log(req);
-				}
-
-			}*/
+				req.toLowerCase();
+				client.setReq(req);
+				return client;
+			
 		}
 		}
 		catch(IOException e){
 			System.out.println("Error with server");
 		}
-		return;
+		return null;
 		
 	}
 	
