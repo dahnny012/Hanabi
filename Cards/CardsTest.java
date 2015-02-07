@@ -1,3 +1,6 @@
+import Cards;
+import Color;
+
 public class CardsTest
 {
 	public static void main(String[] args){
