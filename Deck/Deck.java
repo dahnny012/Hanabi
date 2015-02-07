@@ -8,16 +8,16 @@ public class Deck{
 		int numDefault = 2;
 		int numFives = 1;
 		
-		for(valStart; valStart<=valEnd; valStart++)
+		for(; valStart<=valEnd; valStart++)
 		{
-			foreach(Card.Color color in Enum.GetValues(typeof(Card.Color)))
+			for(Color color: Enum.GetValues(typeof(Color)))
 			{
 				switch(valStart){
 					case 1:
 						addCards(valStart,color,numOnes);
 					case 5:
 						addCards(valStart,color,numFives);
-					case default:
+					default:
 						addCards(valStart,color,numDefault);
 				}
 			}
@@ -38,7 +38,7 @@ public class Deck{
 			System.out.println("Null Deck");
 			return;
 		}
-		int size = deck.size()
+		int size = deck.size();
 		for(int i=0; i<size; i++)
 		{
 			j = rand(0,size-1);	
