@@ -37,7 +37,7 @@ public class Player{
 				if(card.color == color)
 					move.clueMsg += i + " ";
 			}
-			move.clueMsg = "Are the color " + color;
+			move.clueMsg += "Are the color " + color;
 		}
 		else{
 			for(int i=0; i<maxHandSize; i++)
@@ -46,7 +46,7 @@ public class Player{
 				if(value == value)
 					move.clueMsg += i + " ";
 			}
-			move.clueMsg = "Are the numbers " + value
+			move.clueMsg += "Are the numbers " + value
 		}
 		
 		return move;
