@@ -1,7 +1,3 @@
-
-
-
-
 public class Cards
 {
 	private int value;

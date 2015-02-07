@@ -1,3 +1,6 @@
+import java.util.ArrayList;
+import java.util.Random;
+
 public class Deck{
 	private ArrayList<Cards> deck;
 	public Deck()
@@ -10,7 +13,7 @@ public class Deck{
 		
 		for(; valStart<=valEnd; valStart++)
 		{
-			for(Color color: Enum.GetValues(typeof(Color)))
+			for(Color color: Color.values())
 			{
 				switch(valStart){
 					case 1:
@@ -39,9 +42,10 @@ public class Deck{
 			return;
 		}
 		int size = deck.size();
+		int j;
 		for(int i=0; i<size; i++)
 		{
-			j = rand(0,size-1);	
+			j = rando(0,size-1);	
 			swap(i,j);
 		}
 	}
@@ -60,14 +64,14 @@ public class Deck{
 
 	}
 	
-	private void addCards(int value , Card.Color color , int numCards)
+	private void addCards(int value , Color color , int numCards)
 	{
 		for (int i =0; i<numCards; i++)
 		{
-			Cards gameCard = new Cards(value,color);
+			Cards gameCard = Cards.makeCard(value,color);
 			if(gameCard == null)
 			{
-				System.out.println("New card in Deck failed " + valStart + " " + color);
+				System.out.println("New card in Deck failed " + value + " " + color);
 			}
 			deck.add(gameCard);
 		}
