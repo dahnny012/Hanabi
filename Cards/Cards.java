@@ -1,36 +1,31 @@
+
+
+
 public class Cards
 {
 	private int value;
-	private Color color
-	public enum Color {
-        BLUE(0), GREEN(1), RED(2), WHITE(3),YELLOW(4)
-        private int value;
-		
-
-        private Color(int value) {
-                this.value = value;
-        }
-	}   
+	private Color color;
+	  
 	
-	public Cards(value,color)
+	public static Cards makeCard(int value,Color color){
+		if(validCard(value,color))
+			return new Cards(value,color);
+		return null;
+	}
+	private Cards(int value,Color color)
 	{
-		if(validCard){
-			this.value = value;
-			this.color = color;
-		}
-		else{
-			return NULL;
-		}
+		this.value = value;
+		this.color = color;
 	}
 	public Cards()
 	{
 		
 	}
 	
-	public validCard(value,color)
+	public static boolean validCard(int value,Color color)
 	{
-		return color>= BLUE && 
-			color <= YELLOW &&
+		return color.value>= Color.BLUE.value && 
+			color.value <= Color.YELLOW.value &&
 			value >= 1 &&
 			value <= 5;
 	}
