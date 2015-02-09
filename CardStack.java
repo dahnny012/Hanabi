@@ -12,18 +12,20 @@ public class CardStack{
             return Stack.get(Stack.size() - 1);
         }
     }
-    
-    public void placeCard(Cards card)
+    public boolean placeCard(Cards card)
     {
-        if(validPlace(card))
+        if(validPlace(card)){
             Stack.add(card);
+            return true;
+        }
+        return false;
     }
     
     public boolean validPlace(Cards card)
     {
         if(empty() && card.getValue() == 1)
             return true;
-        if((getTopCard().getValue() - 1) == card.getValue())
+        if((getTopCard().getValue() + 1) == card.getValue())
             return true;
         return false;
     }
