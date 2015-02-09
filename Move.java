@@ -4,7 +4,7 @@ public class Move{
     String clueMsg;
     int playIndex;
     Player target;
-    
+    Cards card;
     
     public Move(){
     }
@@ -22,5 +22,8 @@ public class Move{
     public void setPlayIndex(int index)
     {
         playIndex = index;
+    }
+    public void addCard(Cards card){
+    	this.card = card;
     }
 }
