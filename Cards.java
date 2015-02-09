@@ -26,5 +26,12 @@ public class Cards
 			value >= 1 &&
 			value <= 5;
 	}
+	public int getValue()
+	{
+		return this.value;
+	}
+	public Color getColor(){
+		return this.color;
+	}
 	
 }

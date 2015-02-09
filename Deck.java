@@ -2,7 +2,7 @@ import java.util.ArrayList;
 import java.util.Random;
 
 public class Deck{
-	private ArrayList<Cards> deck;
+	private ArrayList<Cards> deck = new ArrayList<Cards>();
 	public Deck()
 	{
 		int valStart = 1;
@@ -25,6 +25,7 @@ public class Deck{
 				}
 			}
 		}
+		shuffle();
 	}
 	
 	public Cards draw()

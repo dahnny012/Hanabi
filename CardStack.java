@@ -1,7 +1,9 @@
+import java.util.ArrayList;
+
 public class CardStack{
-    public ArrayList<Cards> Stack;
+    public ArrayList<Cards> Stack = new ArrayList<Cards>();
     
-    public Card getTopCard()
+    public Cards getTopCard()
     {
         if(empty()){
             return null;
@@ -13,15 +15,15 @@ public class CardStack{
     
     public void placeCard(Cards card)
     {
-        if(validPlace(card)
+        if(validPlace(card))
             Stack.add(card);
     }
     
     public boolean validPlace(Cards card)
     {
-        if(empty() && card.value == 1)
+        if(empty() && card.getValue() == 1)
             return true;
-        if((getTopCard.value - 1) == card.value)
+        if((getTopCard().getValue() - 1) == card.getValue())
             return true;
         return false;
     }
