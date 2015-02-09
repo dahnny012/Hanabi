@@ -14,12 +14,12 @@ public class Move{
         this.moveType = moveType;
     }
     
-    public setDiscardIndex(int index)
+    public void setDiscardIndex(int index)
     {
         discardIndex = index;
     }
     
-    public setPlayIndex(int index)
+    public void setPlayIndex(int index)
     {
         playIndex = index;
     }

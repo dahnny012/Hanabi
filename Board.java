@@ -1,13 +1,17 @@
+import java.net.Socket;
+
 public class Board extends Game{
 	private int gmAddr;
 	private Socket gameManager;
-	
-	public Board(int num,int boardIndex,int gmAddr)
+	public CardStack[] stacksMap;
+	public int numPlayers;
+	public Board(int numPlayers ,int boardIndex,int gmAddr)
 	{
 		this.boardIndex = boardIndex;
 		deck = new Deck();
-		stacksMap = new HashMap();
+		stacksMap = new CardStack[5];
 		this.gmAddr = gmAddr;
+		this.numPlayers = numPlayers;
 		//open a socket to gameManager and keep it.
 	}
 	

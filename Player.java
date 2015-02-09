@@ -1,7 +1,5 @@
-
-
 public class Player{
-	public Cards hand = new Cards[5];
+	public Cards[] hand = new Cards[5];
 	public Move move;
 	public int maxHandSize =5;
 	public int boardIndex;
@@ -27,14 +25,15 @@ public class Player{
 	
 	public Move hint(Color color,int value,Player player){
 		move = new Move("Hint");
-		if(color  == null && value == null)
+		// Dunno about this check
+		if(color  == null && value == -1)
 			return null;
 		
 		if(color != null){
 			for(int i=0; i<maxHandSize; i++)
 			{
 				Cards card = player.hand[i];
-				if(card.color == color)
+				if(card.getColor() == color)
 					move.clueMsg += i + " ";
 			}
 			move.clueMsg += "Are the color " + color;
@@ -46,13 +45,13 @@ public class Player{
 				if(value == value)
 					move.clueMsg += i + " ";
 			}
-			move.clueMsg += "Are the numbers " + value
+			move.clueMsg += "Are the numbers " + value;
 		}
 		
 		return move;
 	}
 	
-	public validHandIndex(int index)
+	public boolean validHandIndex(int index)
 	{
 		return index >= 0 && index < maxHandSize;
 	}
