@@ -6,6 +6,7 @@ public class PlayerTest{
 		app.test_drawFromDeck();
 		app.test_movePlay();
 		app.test_moveDiscard();
+		// TODO Refactor this since this has been changed
 		app.test_moveHint();
 	}
 	
@@ -83,13 +84,13 @@ public class PlayerTest{
 			test2.drawFromDeck(deck);
 		}
 		// Give number hint
-		Move msg1 = test.hintTo(Color.BLUE,-1,test2);
+		//Move msg1 = test.hintTo(Color.BLUE,-1,test2);
 		// Give Color hint
-		Move msg2 = test.hintTo(null, 2, test);
+		//Move msg2 = test.hintTo(null, 2, test);
 		test2.printHand();
-		System.out.println(msg1.clueMsg);
+		//System.out.println(msg1.clueMsg);
 		test.printHand();
-		System.out.println(msg2.clueMsg);
+		//System.out.println(msg2.clueMsg);
 		
 	}
 }

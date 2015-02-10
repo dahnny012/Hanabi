@@ -20,19 +20,32 @@ public class GameManager{
 		
 	}
 	
-	public void playOneTurn()
+	public int playOneTurn()
 	{
-		Move move = askForMove();
+		// Print All Hands except current players
+		// Print board variables
+		// Print card stacks
+		
+		Move move = getCurrentPlayer().askForMove();
 		// Do neccessary actions
 			// If they play , or discard place it in the correct place.
 			// If they hint relay msg.
-	}
-	
-	public Move askForMove()
-	{
-		Move move = getCurrentPlayer().askForMove();
-	   // Get move from player.
-	   return move;
+		   switch(move.moveType){
+		   case"play":
+			   // See if you can add to stack
+			   // Add it to discard pile otherwise.
+			   // draw card
+		   case"discard":
+			   // discard card
+			   // gain time
+			   // draw card
+		   case"hint":
+			   // call createHint();
+			   // write it to console
+		   default:
+			   // Something fked up
+			   return -1;
+		   }
 	}
 
 	public void addPlayer()
@@ -46,7 +59,7 @@ public class GameManager{
 	{
 		board.gameInProgress = true;
 		dealCards();
-		playOneTurn();
+		while(playOneTurn() == 1){};
 	}
 
 	public void dealCards()
@@ -82,6 +95,32 @@ public class GameManager{
 	public void loadPlayers(){
 		for(int i=0; i<numPlayers; i++)
 			players.add(new Player(boardIndex));
+	}
+	
+	public String createHint(Move move){
+		if(move.hintColor  == null && move.hintValue == -1)
+			return "";
+		int handsize = players.get(move.targetPlayer).currentHandsize;
+		Player targetPlayer = players.get(move.targetPlayer);
+		if(move.hintColor != null){
+			for(int i=0; i<handsize; i++)
+			{
+				Cards card = targetPlayer.hand.get(i);
+				if(card.getColor() == move.hintColor)
+					move.clueMsg += i + " ";
+			}
+			move.clueMsg += "Are the color " + move.hintColor;
+		}
+		else{
+			for(int i=0; i<handsize; i++)
+			{
+				Cards card = targetPlayer.hand.get(i);
+				if(card.getValue() == move.hintValue)
+					move.clueMsg += i + " ";
+			}
+			move.clueMsg += "Are the numbers " + move.hintValue;
+		}
+		return move.clueMsg;
 	}
 
 }

@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.Scanner;
 
 public class Player{
 	public ArrayList<Cards> hand = new ArrayList<Cards>();
@@ -7,6 +8,7 @@ public class Player{
 	public int maxHandsize =5;
 	public int boardIndex;
 	public View view;
+	public Scanner scan;
 	public Player(int boardIndex){
 		this.boardIndex = boardIndex; 
 	}
@@ -21,7 +23,7 @@ public class Player{
 	public Move play(int index){
 		if(!validHandIndex(index)) return null;
 		move = new Move("Play");
-		move.setPlayIndex(index);
+		move.targetHandIndex = index;
 		move.addCard(hand.remove(index));
 		currentHandsize--;
 		// Manager will call draw from deck
@@ -31,38 +33,19 @@ public class Player{
 	public Move discard(int index){
 		if(!validHandIndex(index)) return null;
 		move = new Move("Discard");
-		move.setDiscardIndex(index);
+		move.targetHandIndex = index;
 		move.addCard(hand.remove(index));
 		currentHandsize--;
 		// Manager will call draw from deck
 		return move;
 	}
 	
-	public Move hintTo(Color color,int value,Player player){
+	public Move hintTo(Color color,int value,int playerIndex){
 		move = new Move("Hint");
+		move.hintColor = color;
+		move.hintValue = value;
+		move.targetPlayer = playerIndex;
 		// Dunno about this check
-		if(color  == null && value == -1)
-			return null;
-		
-		if(color != null){
-			for(int i=0; i<maxHandsize; i++)
-			{
-				Cards card = player.hand.get(i);
-				if(card.getColor() == color)
-					move.clueMsg += i + " ";
-			}
-			move.clueMsg += "Are the color " + color;
-		}
-		else{
-			for(int i=0; i<maxHandsize; i++)
-			{
-				Cards card = player.hand.get(i);
-				if(card.getValue() == value)
-					move.clueMsg += i + " ";
-			}
-			move.clueMsg += "Are the numbers " + value;
-		}
-		
 		return move;
 	}
 	
@@ -80,11 +63,27 @@ public class Player{
 	
 	public Move askForMove(){
 		// Load Scanner 
-		
+		String num = scan.nextLine();
+		String[]args = num.split(" ");
 		// Give menu options
-		
+		System.out.println("Options to play,discard,hint %i(hand[i] or player[i]) [Color %i Number %i]");
+		try{
+			int index = Integer.parseInt(args[1]);
+            switch(args[0]){
+            case "play":
+            	return play(index);
+            case "discard":
+            	return discard(index);
+            case "hint":
+            	// Temporary
+            	return hintTo(Color.BLUE,1,1);
+            default:
+            	return askForMove();
+            }
+        }
+        catch(NumberFormatException e){
+        	return askForMove();
+        }
 		// Based on User input call Discard,Play,Hint
-		
-		return null;
 	}
 }

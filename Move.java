@@ -1,9 +1,10 @@
 public class Move{
     String moveType;
-    int discardIndex;
     String clueMsg ="";
-    int playIndex;
-    Player target;
+    int targetHandIndex;
+    int targetPlayer;
+    int hintValue;
+    Color hintColor;
     Cards card;
     
     public Move(){
@@ -14,16 +15,7 @@ public class Move{
         this.moveType = moveType;
     }
     
-    public void setDiscardIndex(int index)
-    {
-        discardIndex = index;
-    }
-    
-    public void setPlayIndex(int index)
-    {
-        playIndex = index;
-    }
     public void addCard(Cards card){
-    	this.card = card;
+    	card = card;
     }
 }
