@@ -21,6 +21,10 @@ public class CardStack{
         return false;
     }
     
+    public void discardCard(Cards card){
+    	Stack.add(card);
+    }
+    
     public boolean validPlace(Cards card)
     {
         if(empty() && card.getValue() == 1)

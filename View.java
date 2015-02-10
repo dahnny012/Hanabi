@@ -1,9 +1,7 @@
-public class View extends Game{
+public class View extends Board{
     
-    public playerView; 
-    public View(int num,int boardIndex,int playerView)
+    public View(int num,int boardIndex)
     {
-        this.playerView = playerView;
         this.numPlayers = num;
         this.boardIndex = boardIndex;
     }

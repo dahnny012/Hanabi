@@ -1,16 +1,16 @@
 import java.util.ArrayList;
 
 public class App{
-	static ArrayList<Board> boards;
-	public static void main(String[] args){
+	static ArrayList<Board> boards = new ArrayList<Board>();
+	public static void main(String[] args) throws InterruptedException{
+		
 		
 		App app = new App();
-		AppThread server = new AppThread("Server",boards);
+		//AppThread server = new AppThread("Server",boards);
 		AppThread gameManager = new AppThread("GameManager",boards);
-		
-		server.start();
+		//server.start();
 		gameManager.start();
-		sleep(0);
+		Thread.sleep(0);
 	}
 	
 	
