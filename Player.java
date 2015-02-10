@@ -23,6 +23,7 @@ public class Player{
 		move = new Move("Play");
 		move.setPlayIndex(index);
 		move.addCard(hand.remove(index));
+		currentHandsize--;
 		// Manager will call draw from deck
 		return move;
 	}
@@ -32,11 +33,12 @@ public class Player{
 		move = new Move("Discard");
 		move.setDiscardIndex(index);
 		move.addCard(hand.remove(index));
+		currentHandsize--;
 		// Manager will call draw from deck
 		return move;
 	}
 	
-	public Move hint(Color color,int value,Player player){
+	public Move hintTo(Color color,int value,Player player){
 		move = new Move("Hint");
 		// Dunno about this check
 		if(color  == null && value == -1)
@@ -55,7 +57,7 @@ public class Player{
 			for(int i=0; i<maxHandsize; i++)
 			{
 				Cards card = player.hand.get(i);
-				if(value == value)
+				if(card.getValue() == value)
 					move.clueMsg += i + " ";
 			}
 			move.clueMsg += "Are the numbers " + value;

@@ -1,7 +1,7 @@
 public class Move{
     String moveType;
     int discardIndex;
-    String clueMsg;
+    String clueMsg ="";
     int playIndex;
     Player target;
     Cards card;
