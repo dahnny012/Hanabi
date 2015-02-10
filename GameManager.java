@@ -1,4 +1,5 @@
 import java.net.Socket;
+import java.util.ArrayList;
 
 public class GameManager{
 	private int gmAddr;
@@ -7,6 +8,8 @@ public class GameManager{
 	public int numPlayers;
 	public Board board;
 	public int boardIndex;
+	public ArrayList<Player> players;
+	private int currPlayer = 0;
 	public GameManager(int numPlayers ,int boardIndex,int gmAddr)
 	{
 		this.boardIndex = boardIndex;
@@ -17,37 +20,39 @@ public class GameManager{
 		
 	}
 	
-	public Move playOneTurn()
+	public void playOneTurn()
 	{
-		askForMove(Players.get(currPlayer));
+		Move move = askForMove();
 		// Do neccessary actions
-		// alert game manager to change state of other players.
+			// If they play , or discard place it in the correct place.
+			// If they hint relay msg.
 	}
 	
-	public Move askForMove(Player current)
+	public Move askForMove()
 	{
-	   // Get move from player
-	   return null;
+		Move move = getCurrentPlayer().askForMove();
+	   // Get move from player.
+	   return move;
 	}
 
 	public void addPlayer()
 	{
 		// probably add their network connection stuff later.
-		if(gameInProgress != progress)
-			Players.add(new Player());
+		if(!board.gameInProgress)
+			players.add(new Player(5));
 	}
 
 	public void startGame()
 	{
-		gameInProgress = true;
+		board.gameInProgress = true;
 		dealCards();
 		playOneTurn();
 	}
 
-	public dealCards()
-	{
-		playerCount = Players.size();
-		int handSize;
+	public void dealCards()
+	{	
+		int playerCount = players.size();
+		int handSize = 0;
 		if (playerCount < 2 || playerCount > 5){
 			//error out
 		}else if (playerCount <= 3){
@@ -55,19 +60,28 @@ public class GameManager{
 		}else{
 			handSize = 4;
 		}
-		for (i = 0; i < playerCount; i++){
-			Players.get(i).maxHandSize = handSize;
-			for (j = 0; j < handSize; j++){
-				 Players.get(i).hand[i] = deck.draw();
+		for (int i = 0; i < playerCount; i++){
+			players.get(i).maxHandsize = handSize;
+			for (int j = 0; j < handSize; j++){
+				 players.get(i).hand.set(i,board.deck.draw());
 			}
 		}
 	}
 
 	public boolean endGame()
 	{
-		if(fireworksTokens >= 3 || countdown == 0 || score == maxScore)
+		if(board.fireworksTokens >= 3 || board.countDown == 0 || board.score == board.maxScore)
 			return true;
 		return false;
+	}
+	
+	public Player getCurrentPlayer(){
+		return players.get(currPlayer);
+	}
+	
+	public void loadPlayers(){
+		for(int i=0; i<numPlayers; i++)
+			players.add(new Player(boardIndex));
 	}
 
 }

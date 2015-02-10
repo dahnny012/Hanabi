@@ -77,4 +77,14 @@ public class Player{
 			System.out.println("Card: "+card.getValue() +" " + card.getColor());
 		}
 	}
+	
+	public Move askForMove(){
+		// Load Scanner 
+		
+		// Give menu options
+		
+		// Based on User input call Discard,Play,Hint
+		
+		return null;
+	}
 }
