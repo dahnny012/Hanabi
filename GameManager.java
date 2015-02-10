@@ -4,7 +4,6 @@ import java.util.ArrayList;
 public class GameManager{
 	private int gmAddr;
 	private Socket socket;
-	public CardStack[] stacksMap;
 	public int numPlayers;
 	public Board board;
 	public int boardIndex;
@@ -14,10 +13,8 @@ public class GameManager{
 	{
 		this.boardIndex = boardIndex;
 		board = new Board(numPlayers,boardIndex);
-		stacksMap = new CardStack[5];
 		this.gmAddr = gmAddr;
-		this.numPlayers = numPlayers;
-		
+		this.numPlayers = numPlayers;	
 	}
 	
 	public int playOneTurn()
@@ -33,19 +30,41 @@ public class GameManager{
 		   switch(move.moveType){
 		   case"play":
 			   // See if you can add to stack
-			   // Add it to discard pile otherwise.
-			   // draw card
+			   int colorIndex = move.hintColor.value;
+			   if(!board.stacks[colorIndex].placeCard(move.card)){
+				   // Add a fireworks token
+				   // Add it to discard pile otherwise.
+				   board.discard.discardCard(move.card);
+			   }else{
+				   // Increase score
+				   // If completed stack gain time.
+			   }
+			   // Checking for empty deck needs to be implemented.
+			   getCurrentPlayer().drawFromDeck(board.deck);
+			   break;
 		   case"discard":
 			   // discard card
+			   board.discard.discardCard(move.card);
 			   // gain time
+			   board.timeTokens++;
 			   // draw card
+			   getCurrentPlayer().drawFromDeck(board.deck);
+			   break;
 		   case"hint":
-			   // call createHint();
+			   if(board.timeTokens <= 0)
+				   return playOneTurn();
+			   String msg = createHint(move);
 			   // write it to console
+			   System.out.println(msg);
+			   break;
 		   default:
 			   // Something fked up
 			   return -1;
 		   }
+		   currPlayer++;
+		   if(currPlayer >= numPlayers)
+			   currPlayer = 0;
+		   return 1;
 	}
 
 	public void addPlayer()

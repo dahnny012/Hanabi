@@ -10,6 +10,8 @@ public class Board{
 	public int maxScore = 25;
 	public int boardIndex;
 	public int countDown;
+	public CardStack[] stacks; 
+	public CardStack discard;
 	
 	public Board(int numPlayers,int boardIndex){
 		this.numPlayers = numPlayers;
@@ -17,6 +19,7 @@ public class Board{
 		gameInProgress= true;
 		deck = new Deck();
 		countDown = deck.cardsLeft();
+		stacks = new CardStack[5];
 	}
 
 }
