@@ -1,7 +1,6 @@
-Hanabi
-======
-TODO List:
-- Replace psuedo code with functional code in all major classes.
-- Write test code for all major classes.
-- Implement Board that will house all game objects
-- Implement netcode for server and client.
+Hanabi TODOS:
+
+1. Server needs 3 functions
+  - Recieves a ping to join or create a room
+  - Add sockets to room
+  - Able to broadcast to all sockets in the room
