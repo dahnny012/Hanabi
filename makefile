@@ -4,7 +4,7 @@ app: AppThread App.java
 AppThread: AppThread.java
 	javac AppThread.java
 	
-all: Server.java Client.java
+network: Server.java Client.java
 	javac Server.java
 	javac Client.java
 	
