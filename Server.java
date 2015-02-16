@@ -34,7 +34,19 @@ class Handlers{
 		System.out.println("Created " + roomNumber);
 		res.println("CREATE "+ Integer.toString(roomNumber));
 		res.flush();
-		res.close();
+	}
+	
+	public void message(ClientSocket client,BufferedReader req, PrintWriter res) throws IOException
+	{
+		List<ClientSocket> room = rooms.get(client.roomNumber);
+		String msg= req.readLine();
+		for(ClientSocket player : room){
+			if(player.id != client.id){
+				PrintWriter pipe = new PrintWriter(player.socket.getOutputStream());
+				pipe.println(msg);
+				pipe.flush();
+			}
+		}
 	}
 }
 
@@ -77,6 +89,9 @@ class Router{
 			System.out.println("Proceding to Create");
 			handle.create(client,req,res);
 			return;
+		case "msg":
+			System.out.println("Proceding to Message");
+			handle.message(client,req,res);
 		default:
 			return;
 		}
