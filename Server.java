@@ -1,4 +1,5 @@
 import java.util.*;
+import java.util.concurrent.Semaphore;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.ServerSocket;
@@ -77,6 +78,7 @@ class Router{
 			}
 		}
 		catch(IOException io){
+			System.out.println("Error reading");
 			System.out.println(io);
 			return;
 		}
@@ -104,17 +106,19 @@ public class Server{
 		server = new ServerSocket(8000);
 	}
 	
-	public void start() throws IOException{
-		Dispatch[] dispatchers = new Dispatch[3];
-		Worker[] workers = new Worker[5];
+	public void start() throws IOException, InterruptedException{
+		//Dispatch[] dispatchers = new Dispatch[3];
+		//Worker[] workers = new Worker[5];
+		CountSemaphore sem = new CountSemaphore();
 		for(int i=0; i<3; i++){
-			dispatchers[i] = (new Dispatch(server));
-			dispatchers[i].run();
+			System.out.println("Making Dispatchers");
+			(new Thread(new Dispatch(server,sem))).start();
 		}
-		for(int i=0; i<5; i++){
-			workers[i] = (new Worker());
-			workers[i].run();
+		for(int j=0; j<5; j++){
+			System.out.println("Making workers");
+			(new Thread(new Worker(sem))).start();
 		}
+		Thread.sleep(0);
 	}
 	
 	public void log(String arg)
@@ -126,8 +130,10 @@ public class Server{
 
 class Dispatch implements Runnable{
 	ServerSocket server;
+	CountSemaphore sem;
 	Clients clients = Clients.getInstance();
-	public Dispatch(ServerSocket server){
+	public Dispatch(ServerSocket server,CountSemaphore sem){
+		this.sem = sem;
 		this.server = server;
 	}
 	
@@ -138,6 +144,8 @@ class Dispatch implements Runnable{
 				Socket socket = server.accept();
 				ClientSocket client = new ClientSocket(socket);
 				clients.addConnection(client);
+				sem.produce();
+				System.out.println("Found a client");
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -147,9 +155,18 @@ class Dispatch implements Runnable{
 
 class Worker implements Runnable{
 	Clients clients = Clients.getInstance();
+	CountSemaphore sem;
+	public Worker (CountSemaphore sem){
+		this.sem = sem;
+	}
 	@Override
 	public void run() {
 		while(true){
+			try {
+				sem.consume();
+			} catch (InterruptedException e1) {
+				System.out.println("sem fked up");
+			}
 			ClientSocket task = clients.getWork();
 			if(task != null){
 				Router route = Router.getInstance();
@@ -159,7 +176,9 @@ class Worker implements Runnable{
 					e.printStackTrace();
 				}
 				clients.addConnection(task);
+				sem.produce();
 			}
+
 		}
 		
 	}	
@@ -195,11 +214,30 @@ class Clients{
 	}
 	
 	public ClientSocket getWork(){
-		if(connections.isEmpty())
-			return null;
 		return connections.remove(0);
+	}
+	public void print(){
+		String ids = "";
+		for(ClientSocket client: connections)
+			// String builder would be efficient here w/e
+			ids += client.id + " ";
+		System.out.println(ids);
 	}
 }
 
+
+class CountSemaphore{
+	  private int signals = 0;
+	  public synchronized void produce() {
+	    this.signals++;
+	    this.notify();
+	  }
+
+	  public synchronized void consume() throws InterruptedException{
+	    while(this.signals == 0) wait();
+	    this.signals--;
+	  }
+
+}
 
 

@@ -10,10 +10,11 @@ Hanabi TODOS:
 2. Server testing that needs to be done.
 
 - Can concurrently send a request
-	- join
-	- create
-	- message
+	- join -- check
+	- create -- check
+	- message 
 - After initial request can send additional request.
-
+	-- check
 - Client echo messages from server.
-  	
+  	- For join , and create -- check
+  	- For message
