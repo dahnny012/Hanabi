@@ -28,6 +28,7 @@ public class Client{
 				input = in.readLine();
 				req.println(input);
 			}
+			// Read input from server
 			if(res.ready()){
 				output = res.readLine();
 				app.log(output);

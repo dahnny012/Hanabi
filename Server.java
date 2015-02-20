@@ -9,39 +9,56 @@ import java.io.*;
 
 class Handlers{
 	HashMap<Integer,List<ClientSocket>> rooms = new HashMap<Integer,List<ClientSocket>>();
-	public void join(ClientSocket client,BufferedReader req,PrintWriter res){
+	public void join(ClientSocket client,BufferedReader req,PrintWriter res,String[] args){
 		try{
-			int roomNum = Integer.parseInt(req.readLine());
+			int roomNum = Integer.parseInt(args[1]);
 			List<ClientSocket> room = rooms.get(roomNum);
+			client.roomNum = roomNum;
 			room.add(client);
 			System.out.println("Added player to room " + roomNum);
 			res.println("JOINED " + roomNum);
 			res.flush();
+			String msg = "A player has joined";
+			broadcast(client.roomNum,room,client,msg);
 		}
 		catch(Exception e){
 			System.out.println(e);
 			res.println("Error Can't Connect");
-			return;
+			res.flush();
 		}
 	}
 	
 	public void create(ClientSocket client,BufferedReader req,PrintWriter res){
 		List<ClientSocket> sockets = new ArrayList<ClientSocket>();
 		Random rando = new Random();
-		int roomNumber = rando.nextInt(10000);
+		int roomNum = rando.nextInt(10000);
 		
 		sockets.add(client);
-		rooms.put(roomNumber,sockets);
-		System.out.println("Created " + roomNumber);
-		res.println("CREATE "+ Integer.toString(roomNumber));
+		client.roomNum = roomNum;
+		rooms.put(roomNum,sockets);
+		System.out.println("Created " + roomNum);
+		res.println("CREATE "+ Integer.toString(roomNum));
 		res.flush();
 	}
 	
-	public void message(ClientSocket client,BufferedReader req, PrintWriter res) throws IOException
+	public void message(ClientSocket client,BufferedReader req, PrintWriter res,String[] args) throws IOException
 	{
-		List<ClientSocket> room = rooms.get(client.roomNumber);
-		String msg= req.readLine();
-		for(ClientSocket player : room){
+		List<ClientSocket> room = rooms.get(client.roomNum);
+		try{
+		String msg = args[1];
+		broadcast(client.roomNum,room,client,msg);
+		}
+		catch(Exception e){
+			System.out.println(e);
+			res.println("Error: Cant message");
+			res.flush();
+		}
+	}
+	
+	private void broadcast(int roomNum,List<ClientSocket> room,ClientSocket client,String msg) throws IOException{
+		System.out.println("Room size: " + room.size());
+		for(int i=0; i<room.size(); i++){
+			ClientSocket player = room.get(i);
 			if(player.id != client.id){
 				PrintWriter pipe = new PrintWriter(player.socket.getOutputStream());
 				pipe.println(msg);
@@ -67,11 +84,15 @@ class Router{
 	
 	public void handle(ClientSocket client) throws IOException{
 		String route;
+		String[] args;
+		String request;
 		BufferedReader req = new BufferedReader(new InputStreamReader(client.socket.getInputStream()));
 		PrintWriter res = new PrintWriter(client.socket.getOutputStream());
 		try{
 			if(req.ready()){
-				route = req.readLine();
+				request = req.readLine();
+				args = request.split(" ");
+				route = args[0];
 				System.out.println("Route: " + route);
 			}else{
 				return;
@@ -85,7 +106,7 @@ class Router{
 		switch(route){
 		case "join":
 			System.out.println("Proceding to Join");
-			handle.join(client,req,res);
+			handle.join(client,req,res,args);
 			return;
 		case "create":
 			System.out.println("Proceding to Create");
@@ -93,7 +114,7 @@ class Router{
 			return;
 		case "msg":
 			System.out.println("Proceding to Message");
-			handle.message(client,req,res);
+			handle.message(client,req,res,args);
 		default:
 			return;
 		}
@@ -163,6 +184,7 @@ class Worker implements Runnable{
 	public void run() {
 		while(true){
 			try {
+				//System.out.println("Semaphore: " + sem.signals);
 				sem.consume();
 			} catch (InterruptedException e1) {
 				System.out.println("sem fked up");
@@ -177,6 +199,8 @@ class Worker implements Runnable{
 				}
 				clients.addConnection(task);
 				sem.produce();
+				//System.out.println("Semaphore: " + sem.signals);
+				//clients.print();
 			}
 
 		}
@@ -187,7 +211,7 @@ class Worker implements Runnable{
 class ClientSocket{
 	Socket socket;
 	public int id;
-	public int roomNumber;
+	public int roomNum;
 	public ClientSocket(Socket socket){
 		Random rando = new Random();
 		id = rando.nextInt(10000);
@@ -214,6 +238,8 @@ class Clients{
 	}
 	
 	public ClientSocket getWork(){
+		if(connections.isEmpty())
+			return null;
 		return connections.remove(0);
 	}
 	public void print(){
@@ -227,7 +253,7 @@ class Clients{
 
 
 class CountSemaphore{
-	  private int signals = 0;
+	  public int signals = 0;
 	  public synchronized void produce() {
 	    this.signals++;
 	    this.notify();
