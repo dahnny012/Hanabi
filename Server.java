@@ -9,26 +9,25 @@ import java.io.*;
 
 class Handlers{
 	HashMap<Integer,List<ClientSocket>> rooms = new HashMap<Integer,List<ClientSocket>>();
-	public void join(ClientSocket client,BufferedReader req,PrintWriter res,String[] args){
+	public void join(ClientSocket client,String[] args){
 		try{
 			int roomNum = Integer.parseInt(args[1]);
 			List<ClientSocket> room = rooms.get(roomNum);
 			client.roomNum = roomNum;
+			String msg = "A player has joined";
+			
 			room.add(client);
 			System.out.println("Added player to room " + roomNum);
-			res.println("JOINED " + roomNum);
-			res.flush();
-			String msg = "A player has joined";
+			client.write("JOINED " + roomNum);
 			broadcast(client.roomNum,room,client,msg);
 		}
 		catch(Exception e){
 			System.out.println(e);
-			res.println("Error Can't Connect");
-			res.flush();
+			client.write("Error Can't Connect");
 		}
 	}
 	
-	public void create(ClientSocket client,BufferedReader req,PrintWriter res){
+	public void create(ClientSocket client){
 		List<ClientSocket> sockets = new ArrayList<ClientSocket>();
 		Random rando = new Random();
 		int roomNum = rando.nextInt(10000);
@@ -37,11 +36,10 @@ class Handlers{
 		client.roomNum = roomNum;
 		rooms.put(roomNum,sockets);
 		System.out.println("Created " + roomNum);
-		res.println("CREATE "+ Integer.toString(roomNum));
-		res.flush();
+		client.write("CREATE "+ Integer.toString(roomNum));
 	}
 	
-	public void message(ClientSocket client,BufferedReader req, PrintWriter res,String[] args) throws IOException
+	public void message(ClientSocket client,String[] args) throws IOException
 	{
 		List<ClientSocket> room = rooms.get(client.roomNum);
 		try{
@@ -50,8 +48,7 @@ class Handlers{
 		}
 		catch(Exception e){
 			System.out.println(e);
-			res.println("Error: Cant message");
-			res.flush();
+			client.write("Error: Cant message");
 		}
 	}
 	
@@ -60,9 +57,7 @@ class Handlers{
 		for(int i=0; i<room.size(); i++){
 			ClientSocket player = room.get(i);
 			if(player.id != client.id){
-				PrintWriter pipe = new PrintWriter(player.socket.getOutputStream());
-				pipe.println(msg);
-				pipe.flush();
+				player.write(msg);
 			}
 		}
 	}
@@ -86,11 +81,9 @@ class Router{
 		String route;
 		String[] args;
 		String request;
-		BufferedReader req = new BufferedReader(new InputStreamReader(client.socket.getInputStream()));
-		PrintWriter res = new PrintWriter(client.socket.getOutputStream());
 		try{
-			if(req.ready()){
-				request = req.readLine();
+			if(client.req.ready()){
+				request = client.read();
 				args = request.split(" ");
 				route = args[0];
 				System.out.println("Route: " + route);
@@ -106,15 +99,15 @@ class Router{
 		switch(route){
 		case "join":
 			System.out.println("Proceding to Join");
-			handle.join(client,req,res,args);
+			handle.join(client,args);
 			return;
 		case "create":
 			System.out.println("Proceding to Create");
-			handle.create(client,req,res);
+			handle.create(client);
 			return;
 		case "msg":
 			System.out.println("Proceding to Message");
-			handle.message(client,req,res,args);
+			handle.message(client,args);
 		default:
 			return;
 		}
@@ -128,8 +121,6 @@ public class Server{
 	}
 	
 	public void start() throws IOException, InterruptedException{
-		//Dispatch[] dispatchers = new Dispatch[3];
-		//Worker[] workers = new Worker[5];
 		CountSemaphore sem = new CountSemaphore();
 		for(int i=0; i<3; i++){
 			System.out.println("Making Dispatchers");
@@ -165,9 +156,7 @@ class Dispatch implements Runnable{
 				Socket socket = server.accept();
 				ClientSocket client = new ClientSocket(socket);
 				clients.addConnection(client);
-				PrintWriter res = new PrintWriter(client.socket.getOutputStream());
-				res.println("Welcome");
-				res.flush();
+				client.write("Welcome");
 				sem.produce();
 				System.out.println("Found a client");
 			} catch (IOException e) {
@@ -205,6 +194,11 @@ class Worker implements Runnable{
 				//System.out.println("Semaphore: " + sem.signals);
 				//clients.print();
 			}
+			try {
+				Thread.sleep(10);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
 
 		}
 		
@@ -215,11 +209,25 @@ class ClientSocket{
 	Socket socket;
 	public int id;
 	public int roomNum;
-	public ClientSocket(Socket socket){
+	PrintWriter res;
+	BufferedReader req;
+	public ClientSocket(Socket socket) throws IOException{
 		Random rando = new Random();
 		id = rando.nextInt(10000);
 		this.socket = socket;
+		req = new BufferedReader(new InputStreamReader(this.socket.getInputStream()));
+		res = new PrintWriter(this.socket.getOutputStream());
 	}
+	
+	public void write(String msg){
+		res.println(msg);
+		res.flush();
+	}
+	
+	public String read() throws IOException{
+		return req.readLine();
+	}
+	
 }
 
 
