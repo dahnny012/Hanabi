@@ -50,6 +50,35 @@ class Handlers{
 		}
 	}
 	
+	public void leave(ClientSocket client) throws IOException{
+		// If in a game
+		if(client.roomNum > 0){
+			List<ClientSocket>room = rooms.get(client.roomNum);
+			for(int i=0; i<room.size(); i++){
+				ClientSocket player = room.get(i);
+				if(player.id == client.id){
+					broadcast(client.roomNum, room, client,"A player has left");
+					room.remove(i);
+				}
+			}
+			return;
+		}
+	}
+	
+	public void move(ClientSocket client,String[] args){
+		// Broadcast move to all players
+		List<ClientSocket> room = rooms.get(client.roomNum);
+		try{
+		String msg = args[1];
+		broadcast(client.roomNum,room,client,msg);
+		}
+		catch(Exception e){
+			System.out.println(e);
+			client.write("Error: Cant message");
+		}
+	}
+	
+	
 	private void broadcast(int roomNum,List<ClientSocket> room,ClientSocket client,String msg) throws IOException{
 		System.out.println("Room size: " + room.size());
 		for(int i=0; i<room.size(); i++){
@@ -59,6 +88,8 @@ class Handlers{
 			}
 		}
 	}
+	
+	
 }
 
 
@@ -75,7 +106,7 @@ class Router{
         return router;
 	}
 	
-	public void handle(ClientSocket client) throws IOException{
+	public boolean handle(ClientSocket client) throws IOException{
 		String route;
 		String[] args;
 		String request;
@@ -86,28 +117,37 @@ class Router{
 				route = args[0];
 				System.out.println("Route: " + route);
 			}else{
-				return;
+				return true;
 			}
 		}
 		catch(IOException io){
 			System.out.println("Error reading");
 			System.out.println(io);
-			return;
+			return true;
 		}
 		switch(route){
 		case "join":
 			System.out.println("Proceding to Join");
 			handle.join(client,args);
-			return;
+			return true;
 		case "create":
 			System.out.println("Proceding to Create");
 			handle.create(client);
-			return;
+			return true;
 		case "msg":
 			System.out.println("Proceding to Message");
 			handle.message(client,args);
+			return true;
+		case "leave":
+			System.out.println("Proceding to leave");
+			handle.leave(client);
+			return false;
+		case "move":
+			System.out.println("Proceding to leave");
+			handle.move(client,args);
+			return true;
 		default:
-			return;
+			return true;
 		}
 	}
 }
@@ -180,15 +220,18 @@ class Worker implements Runnable{
 				System.out.println("sem fked up");
 			}
 			ClientSocket task = clients.getWork();
+			boolean reenter = true;
 			if(task != null){
 				Router route = Router.getInstance();
 				try {
-					route.handle(task);
+					reenter = route.handle(task);
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
-				clients.addConnection(task);
-				sem.produce();
+				if(reenter){
+					clients.addConnection(task);
+					sem.produce();
+				}
 				//System.out.println("Semaphore: " + sem.signals);
 				//clients.print();
 			}
