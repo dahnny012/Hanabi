@@ -20,7 +20,11 @@ public class Client{
 		BufferedReader res = new BufferedReader(new InputStreamReader(connection.getInputStream()));
 		String input;
 		String output;
-		// Get a line from stdin. 
+		GameManager gm;
+		Board board;
+		
+		
+		// Client
 		while(true)
 		{
 			// Print it to the server
@@ -32,8 +36,26 @@ public class Client{
 			if(res.ready()){
 				output = res.readLine();
 				app.log(output);
+				if(output.equals("Create") || output.equals("Join")){
+					//gm = new GameManager();
+					//board = new Board();
+					break;
+				}
 			}
 		}
+		
+		
+		// Game loop
+		while(true){
+			// if not your turn , wait niggie
+				// else get move
+					// write to server
+			// receive from server
+				// do appropriate shit with the message
+		}
+		
+		
+		
 		}
 		catch(IOException e){
 			System.out.println("Error connecting");
