@@ -165,6 +165,9 @@ class Dispatch implements Runnable{
 				Socket socket = server.accept();
 				ClientSocket client = new ClientSocket(socket);
 				clients.addConnection(client);
+				PrintWriter res = new PrintWriter(client.socket.getOutputStream());
+				res.println("Welcome");
+				res.flush();
 				sem.produce();
 				System.out.println("Found a client");
 			} catch (IOException e) {
@@ -233,14 +236,16 @@ class Clients{
         return clients;
 	}
 	
-	public void addConnection(ClientSocket client){
+	public synchronized void addConnection(ClientSocket client){
 		connections.add(client);
 	}
 	
 	public ClientSocket getWork(){
 		if(connections.isEmpty())
 			return null;
-		return connections.remove(0);
+		synchronized(this){
+			return connections.remove(0);
+		}
 	}
 	public void print(){
 		String ids = "";
