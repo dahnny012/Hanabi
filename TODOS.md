@@ -12,9 +12,16 @@ Hanabi TODOS:
 - Can concurrently send a request
 	- join -- check
 	- create -- check
-	- message 
+	- message -- check
 - After initial request can send additional request.
 	-- check
 - Client echo messages from server.
   	- For join , and create -- check
-  	- For message
+  	- For message -- check
+  	
+  	
+Known bugs and concerns:
+	- How to detect Disconnecting Clients ? 
+		- maybe handle all exit signals on client side and send a msg
+	- Sometimes client socket isnt "recieved"
+		- random i dont know whats happening
