@@ -17,7 +17,7 @@ public class Client{
 		Socket connection = new Socket("127.0.0.1",8000);
 		BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
 		PrintWriter req = new PrintWriter(connection.getOutputStream(), true);
-		BufferedReader res = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+		BufferedReader server = new BufferedReader(new InputStreamReader(connection.getInputStream()));
 		String input;
 		String output;
 		GameManager gm;
@@ -33,12 +33,12 @@ public class Client{
 				req.println(input);
 			}
 			// Read input from server
-			if(res.ready()){
-				output = res.readLine();
+			if(server.ready()){
+				output = server.readLine();
 				app.log(output);
-				if(output.equals("Create") || output.equals("Join")){
-					//gm = new GameManager();
-					//board = new Board();
+				if(output.equals("Start")){
+					gm = new GameManager(0, 0, 0);
+					board = new Board(0, 0);
 					break;
 				}
 			}
@@ -47,11 +47,17 @@ public class Client{
 		
 		// Game loop
 		while(true){
-			// if not your turn , wait niggie
-				// else get move
-					// write to server
-			// receive from server
-				// do appropriate shit with the message
+			if(gm.currPlayer == 1)
+			{
+				if(in.ready()){
+					input = in.readLine();
+				}
+				gm.playOneTurn();
+			}
+			if(server.ready()){
+				output = server.readLine();
+				gm.playOneTurn();
+			}
 		}
 		
 		

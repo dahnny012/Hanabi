@@ -8,7 +8,7 @@ public class GameManager{
 	public Board board;
 	public int boardIndex;
 	public ArrayList<Player> players;
-	private int currPlayer = 0;
+	public int currPlayer = 0;
 	public GameManager(int numPlayers ,int boardIndex,int gmAddr)
 	{
 		this.boardIndex = boardIndex;
