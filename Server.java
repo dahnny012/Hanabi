@@ -9,9 +9,9 @@ import org.json.simple.JSONObject;
 
 class Handlers{
 	HashMap<Integer,List<ClientSocket>> rooms = new HashMap<Integer,List<ClientSocket>>();
-	public void join(ClientSocket client,String[] args){
+	public void join(ClientSocket client,JSONObject args){
 		try{
-			int roomNum = Integer.parseInt(args[1]);
+			int roomNum = Integer.parseInt(args.get("roomNum"));
 			List<ClientSocket> room = rooms.get(roomNum);
 			client.roomNum = roomNum;
 			String msg;
@@ -55,11 +55,11 @@ class Handlers{
 		client.write(obj.toString());
 	}
 	
-	public void message(ClientSocket client,String[] args) throws IOException
+	public void message(ClientSocket client,JSONObject args) throws IOException
 	{
 		List<ClientSocket> room = rooms.get(client.roomNum);
 		try{
-		String msg = args[1];
+		String msg = args.get("msg");
 		
 		JSONObject obj=new JSONObject();
 		StringWriter out = new StringWriter();
@@ -99,11 +99,11 @@ class Handlers{
 		}
 	}
 	
-	public void move(ClientSocket client,String[] args){
+	public void move(ClientSocket client,JSONObject args){
 		// Broadcast move to all players
 		List<ClientSocket> room = rooms.get(client.roomNum);
 		try{
-		String msg = args[1];
+		String msg = args.get("move");
 		
 		JSONObject obj=new JSONObject();
 		StringWriter out = new StringWriter();
@@ -130,6 +130,13 @@ class Handlers{
 		}
 	}
 	
+	
+	public void start(ClientSocket client){
+		// Read the data
+		// Create a Json object
+		// broadcast the data to the room
+	}
+	
 	private void writeError(ClientSocket client,String msg){
 		JSONObject obj=new JSONObject();
 		StringWriter out = new StringWriter();
@@ -138,8 +145,6 @@ class Handlers{
 		obj.writeJSONString(out);
 		client.write(obj.toString());
 	}
-	
-	
 }
 
 
@@ -163,8 +168,8 @@ class Router{
 		try{
 			if(client.req.ready()){
 				request = client.read();
-				args = request.split(" ");
-				route = args[0];
+				JSONObject json = (JSONObject)parser.parse(output);
+				route = json.get("Route");
 				System.out.println("Route: " + route);
 			}else{
 				return true;
@@ -176,28 +181,26 @@ class Router{
 			return true;
 		}
 		switch(route){
-		case "join":
+		case "Join":
 			System.out.println("Proceding to Join");
-			handle.join(client,args);
+			handle.join(client,json);
 			return true;
-		case "create":
+		case "Create":
 			System.out.println("Proceding to Create");
 			handle.create(client);
 			return true;
-		case "msg":
+		case "Msg":
 			System.out.println("Proceding to Message");
-			handle.message(client,args);
+			handle.message(client,json);
 			return true;
-		case "leave":
+		case "Leave":
 			System.out.println("Proceding to leave");
 			handle.leave(client);
 			return false;
-		case "move":
+		case "Move":
 			System.out.println("Proceding to leave");
-			handle.move(client,args);
+			handle.move(client,json);
 			return true;
-		case "json":
-			handle.json(client);
 		default:
 			return true;
 		}

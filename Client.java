@@ -26,6 +26,7 @@ public class Client{
 		JSONParser parser = new JSONParser();
 		String input;
 		String output;
+		String args[];
 		GameManager gm;
 		Board board;
 		boolean start = false; 
@@ -37,6 +38,21 @@ public class Client{
 			// Print it to the server
 			if(in.ready()){
 				input = in.readLine();
+				args = input.split(" ");
+				switch(args[0]){
+				case "Join":
+					// Wrap number in json object
+				case "Start":
+				 // if board and gm is not null
+					// Make the deck
+					// Create the hand
+					// Encode through JSON
+					// Send Start, and data
+				case "Msg":
+					// Wrap message in json object
+				case "Create":
+					// thing special.
+				}
 				req.println(input);
 			}
 			// Read input from server
@@ -64,7 +80,9 @@ public class Client{
 					// Sync data with json.deck , json.hands
 					break;
 				case "Join":
+					// Increment a player count;
 				case "Leave":
+					// Decrement a player count;
 				case "Error":
 				case "Msg":
 					app.log(app.getJSON(json,"msg"));
