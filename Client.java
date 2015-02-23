@@ -42,7 +42,7 @@ public class Client{
 			if(server.ready()){
 				output = server.readLine();
 				JSONObject json = (JSONObject)parser.parse(output);
-				switch(app.JSONget(json,"request")){
+				switch(app.JSONget(json,"Event")){
 				case "Start":
 					start = true;
 					if(true){// if host

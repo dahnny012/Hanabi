@@ -14,16 +14,25 @@ class Handlers{
 			int roomNum = Integer.parseInt(args[1]);
 			List<ClientSocket> room = rooms.get(roomNum);
 			client.roomNum = roomNum;
-			String msg = "A player has joined";
+			String msg;
 			
 			room.add(client);
 			System.out.println("Added player to room " + roomNum);
-			client.write("JOINED " + roomNum);
+			//client.write("JOINED " + roomNum);
+			
+			JSONObject joinMsg=new JSONObject();
+			StringWriter out = new StringWriter();
+			joinMsg.put("Event","Join");
+			joinMsg.put("roomId",roomNum);
+			joinMsg.writeJSONString(out);
+			msg = joinMsg.toString();
+			
+			client.write(msg);
 			broadcast(client.roomNum,room,client,msg);
 		}
 		catch(Exception e){
 			System.out.println(e);
-			client.write("Error Can't Connect");
+			writeError(client,"Cant connect");
 		}
 	}
 	
@@ -36,11 +45,11 @@ class Handlers{
 		client.roomNum = roomNum;
 		rooms.put(roomNum,sockets);
 		System.out.println("Created " + roomNum);
-		client.write("CREATE "+ Integer.toString(roomNum));
+		//client.write("CREATE "+ Integer.toString(roomNum));
 		
 		JSONObject obj=new JSONObject();
 		StringWriter out = new StringWriter();
-		obj.put("request","Create");
+		obj.put("Event","Create");
 		obj.put("roomId",roomNum);
 		obj.writeJSONString(out);
 		client.write(obj.toString());
@@ -51,11 +60,19 @@ class Handlers{
 		List<ClientSocket> room = rooms.get(client.roomNum);
 		try{
 		String msg = args[1];
-		broadcast(client.roomNum,room,client,msg);
+		
+		JSONObject obj=new JSONObject();
+		StringWriter out = new StringWriter();
+		obj.put("Event","Msg");
+		obj.put("msg",msg);
+		obj.writeJSONString(out);
+		String eventMsg = obj.toString();
+		
+		broadcast(client.roomNum,room,client,eventMsg);
 		}
 		catch(Exception e){
 			System.out.println(e);
-			client.write("Error: Cant message");
+			writeError(client,"Cant Message");
 		}
 	}
 	
@@ -68,7 +85,7 @@ class Handlers{
 				if(player.id == client.id){
 					broadcast(client.roomNum, room, client,"A player has left");
 					room.remove(i);
-				}
+				} 
 			}
 			return;
 		}
@@ -83,20 +100,9 @@ class Handlers{
 		}
 		catch(Exception e){
 			System.out.println(e);
-			client.write("Error: Cant message");
+			writeError(client,"Cant send move");
 		}
 	}
-	
-	
-	public void json(ClientSocket client) throws IOException{
-		JSONObject obj=new JSONObject();
-		StringWriter out = new StringWriter();
-		obj.put("request","test");
-		obj.put("msg","I am cool");
-		obj.writeJSONString(out);
-		client.write(obj.toString());
-	}
-	
 	
 	private void broadcast(int roomNum,List<ClientSocket> room,ClientSocket client,String msg) throws IOException{
 		System.out.println("Room size: " + room.size());
@@ -106,6 +112,15 @@ class Handlers{
 				player.write(msg);
 			}
 		}
+	}
+	
+	private void writeError(ClientSocket client,String msg){
+		JSONObject obj=new JSONObject();
+		StringWriter out = new StringWriter();
+		obj.put("Event","error");
+		obj.put("msg",msg);
+		obj.writeJSONString(out);
+		client.write(obj.toString());
 	}
 	
 	
