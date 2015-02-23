@@ -80,10 +80,18 @@ class Handlers{
 		// If in a game
 		if(client.roomNum > 0){
 			List<ClientSocket>room = rooms.get(client.roomNum);
+			
+			JSONObject obj=new JSONObject();
+			StringWriter out = new StringWriter();
+			obj.put("Event","Leave");
+			obj.put("msg","A Player has left");
+			obj.writeJSONString(out);
+			String eventMsg = obj.toString();
+			
 			for(int i=0; i<room.size(); i++){
 				ClientSocket player = room.get(i);
 				if(player.id == client.id){
-					broadcast(client.roomNum, room, client,"A player has left");
+					broadcast(client.roomNum, room, client,eventMsg);
 					room.remove(i);
 				} 
 			}
@@ -96,7 +104,15 @@ class Handlers{
 		List<ClientSocket> room = rooms.get(client.roomNum);
 		try{
 		String msg = args[1];
-		broadcast(client.roomNum,room,client,msg);
+		
+		JSONObject obj=new JSONObject();
+		StringWriter out = new StringWriter();
+		obj.put("Event","Move");
+		obj.put("msg","move");
+		obj.writeJSONString(out);
+		String eventMsg = obj.toString();
+		
+		broadcast(client.roomNum,room,client,eventMsg);
 		}
 		catch(Exception e){
 			System.out.println(e);
