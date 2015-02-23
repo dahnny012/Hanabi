@@ -1,21 +1,21 @@
+import java.io.BufferedReader;
 import java.net.Socket;
 import java.util.ArrayList;
 
 public class GameManager{
-	private int gmAddr;
+	private BufferedReader  server;
 	private Socket socket;
 	public int numPlayers;
 	public Board board;
 	public int boardIndex;
 	public ArrayList<Player> players;
 	public int currPlayer = 0;
-	public GameManager(int numPlayers ,int boardIndex,int gmAddr)
+	public GameManager(int numPlayers ,BufferedReader server,Board board)
 	{
-		this.boardIndex = boardIndex;
-		board = new Board(numPlayers,boardIndex);
-		this.gmAddr = gmAddr;
+		this.server = server;
 		this.numPlayers = numPlayers;	
 	}
+	
 	
 	public int playOneTurn()
 	{

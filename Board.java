@@ -8,15 +8,12 @@ public class Board{
 	public boolean gameInProgress = false;
 	public int score = 0;
 	public int maxScore = 25;
-	public int boardIndex;
 	public int countDown;
 	public CardStack[] stacks; 
 	public CardStack discard;
 	
-	public Board(int numPlayers,int boardIndex){
+	public Board(int numPlayers){
 		this.numPlayers = numPlayers;
-		this.boardIndex = boardIndex;
-		gameInProgress= true;
 		deck = new Deck();
 		countDown = deck.cardsLeft();
 		stacks = new CardStack[5];

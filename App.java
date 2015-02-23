@@ -1,6 +1,5 @@
 import java.io.IOException;
 import java.util.ArrayList;
-
 public class App{
 	static ArrayList<Board> boards = new ArrayList<Board>();
 	public static void main(String[] args) throws InterruptedException, IOException{

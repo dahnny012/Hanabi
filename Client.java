@@ -1,8 +1,13 @@
-import java.util.ArrayList;
 import java.util.*;
 import java.net.Socket;
 import java.net.ServerSocket;
 import java.io.*;
+
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.JSONValue;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 
 /* Todo
  * Setup to recieve server responses.
@@ -10,7 +15,7 @@ import java.io.*;
 
 
 public class Client{
-	public static void main(String[] arg)
+	public static void main(String[] arg) throws ParseException
 	{
 		try{
 		Client app = new Client();
@@ -18,14 +23,15 @@ public class Client{
 		BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
 		PrintWriter req = new PrintWriter(connection.getOutputStream(), true);
 		BufferedReader server = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+		JSONParser parser = new JSONParser();
 		String input;
 		String output;
 		GameManager gm;
 		Board board;
-		
+		Boolean start = false; 
 		
 		// Client
-		while(true)
+		while(!start)
 		{
 			// Print it to the server
 			if(in.ready()){
@@ -35,17 +41,28 @@ public class Client{
 			// Read input from server
 			if(server.ready()){
 				output = server.readLine();
-				app.log(output);
-				if(output.equals("Start")){
-					gm = new GameManager(0, 0, 0);
-					board = new Board(0, 0);
-					break;
+				JSONObject json = (JSONObject)parser.parse(output);
+				switch(app.JSONget(json,"request")){
+				case "Start":
+					start = true;
+					if(true){// if host
+						// Create board
+						// create gm
+						// Send deck data and hand data.
+					}
+				break;
+				case "Sync":
+					// create gm 
+					// sync data from server.
+				default:
+					app.log("gg");
 				}
 			}
 		}
 		
 		
 		// Game loop
+		/*
 		while(true){
 			if(gm.currPlayer == 1)
 			{
@@ -55,10 +72,10 @@ public class Client{
 				gm.playOneTurn();
 			}
 			if(server.ready()){
-				output = server.readLine();
+				output = server.readLine().split(",");
 				gm.playOneTurn();
 			}
-		}
+		}*/
 		
 		
 		
@@ -73,5 +90,8 @@ public class Client{
 	public void log(String arg)
 	{
 		System.out.println(arg);
+	}
+	public String JSONget(JSONObject obj,String key){
+		return obj.get(key).toString();
 	}
 }

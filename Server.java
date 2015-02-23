@@ -3,6 +3,8 @@ import java.net.Socket;
 import java.net.ServerSocket;
 import java.io.*;
 
+import org.json.simple.JSONObject;
+
 
 
 class Handlers{
@@ -25,7 +27,7 @@ class Handlers{
 		}
 	}
 	
-	public void create(ClientSocket client){
+	public void create(ClientSocket client) throws IOException{
 		List<ClientSocket> sockets = new ArrayList<ClientSocket>();
 		Random rando = new Random();
 		int roomNum = rando.nextInt(10000);
@@ -35,6 +37,13 @@ class Handlers{
 		rooms.put(roomNum,sockets);
 		System.out.println("Created " + roomNum);
 		client.write("CREATE "+ Integer.toString(roomNum));
+		
+		JSONObject obj=new JSONObject();
+		StringWriter out = new StringWriter();
+		obj.put("request","Create");
+		obj.put("roomId",roomNum);
+		obj.writeJSONString(out);
+		client.write(obj.toString());
 	}
 	
 	public void message(ClientSocket client,String[] args) throws IOException
@@ -76,6 +85,16 @@ class Handlers{
 			System.out.println(e);
 			client.write("Error: Cant message");
 		}
+	}
+	
+	
+	public void json(ClientSocket client) throws IOException{
+		JSONObject obj=new JSONObject();
+		StringWriter out = new StringWriter();
+		obj.put("request","test");
+		obj.put("msg","I am cool");
+		obj.writeJSONString(out);
+		client.write(obj.toString());
 	}
 	
 	
@@ -146,6 +165,8 @@ class Router{
 			System.out.println("Proceding to leave");
 			handle.move(client,args);
 			return true;
+		case "json":
+			handle.json(client);
 		default:
 			return true;
 		}
@@ -194,7 +215,7 @@ class Dispatch implements Runnable{
 				Socket socket = server.accept();
 				ClientSocket client = new ClientSocket(socket);
 				clients.addConnection(client);
-				client.write("Welcome");
+				//client.write("Welcome");
 				sem.produce();
 				System.out.println("Found a client");
 			} catch (IOException e) {
