@@ -28,7 +28,8 @@ public class Client{
 		String output;
 		GameManager gm;
 		Board board;
-		Boolean start = false; 
+		boolean start = false; 
+		boolean host = false;
 		
 		// Client
 		while(!start)
@@ -42,46 +43,59 @@ public class Client{
 			if(server.ready()){
 				output = server.readLine();
 				JSONObject json = (JSONObject)parser.parse(output);
-				switch(app.JSONget(json,"Event")){
+				switch(app.getJSON(json,"Event")){
+				case "Create":
+					host = true;
 				case "Start":
 					start = true;
-					if(true){// if host
-						// Create board
-						// create gm
-						// Send deck data and hand data.
+					if(host){
+						// Server will write number of players
+						int numPlayers = Integer.parseInt(app.getJSON(json,"players"));
+						board = new Board(numPlayers);
+						gm = new GameManager(numPlayers,server,board);
+						// 
 					}
 				break;
 				case "Sync":
-					// create gm 
-					// sync data from server.
+					output = server.readLine();
+					int numPlayers = Integer.parseInt(app.getJSON(json,"players"));
+					board = new Board(numPlayers);
+					gm = new GameManager(numPlayers,server,board);
+					// Sync data with json.deck , json.hands
+					break;
+				case "Join":
+				case "Leave":
+				case "Error":
+				case "Msg":
+					app.log(app.getJSON(json,"msg"));
+					break;
 				default:
 					app.log("gg");
 				}
 			}
 		}
-		
-		
-		// Game loop
-		/*
 		while(true){
-			if(gm.currPlayer == 1)
-			{
+			if(gm.currPlayer == 1){
 				if(in.ready()){
 					input = in.readLine();
 				}
 				gm.playOneTurn();
 			}
 			if(server.ready()){
-				output = server.readLine().split(",");
-				gm.playOneTurn();
+				output = server.readLine();
+				JSONObject json = (JSONObject)parser.parse(output);
+				switch(app.getJSON(json,"Event")){
+					case "Move":
+					case "Leave":
+					case "Msg":
+					case "Error":
+				}
 			}
-		}*/
-		
-		
+		}
 		
 		}
-		catch(IOException e){
-			System.out.println("Error connecting");
+		catch(Exception e){
+			System.out.println(e);
 		}
 		return;
 		
@@ -91,7 +105,7 @@ public class Client{
 	{
 		System.out.println(arg);
 	}
-	public String JSONget(JSONObject obj,String key){
+	public String getJSON(JSONObject obj,String key){
 		return obj.get(key).toString();
 	}
 }

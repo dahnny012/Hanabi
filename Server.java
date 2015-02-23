@@ -133,7 +133,7 @@ class Handlers{
 	private void writeError(ClientSocket client,String msg){
 		JSONObject obj=new JSONObject();
 		StringWriter out = new StringWriter();
-		obj.put("Event","error");
+		obj.put("Event","Error");
 		obj.put("msg",msg);
 		obj.writeJSONString(out);
 		client.write(obj.toString());
