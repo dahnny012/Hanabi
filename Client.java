@@ -14,84 +14,80 @@ import org.json.simple.parser.ParseException;
  */
 
 
+class Connection{
+	Socket socket;
+	PrintWriter req;
+	BufferedReader res;
+	public Connection(String url,int port){
+		socket = new Socket(url,port);
+		req = new PrintWriter(socket.getOutputStream(), true);
+		res = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+	}
+	
+	public void close(){
+		socket.close();
+		req.close();
+		res.close();
+	}
+	public void send(String str){
+		req.println(str);
+	}
+}
+
 public class Client{
+	int userid;
+	Connection request;
+	Connection server;
+	boolean start = false;
+	boolean host = false;
+	GameManager gm;
+	Board board;
+	
 	public static void main(String[] arg) throws ParseException
 	{
 		try{
 		Client app = new Client();
-		Socket connection = new Socket("127.0.0.1",8000);
-		BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
-		PrintWriter req = new PrintWriter(connection.getOutputStream(), true);
-		BufferedReader server = new BufferedReader(new InputStreamReader(connection.getInputStream()));
 		JSONParser parser = new JSONParser();
 		String input;
 		String output;
 		String args[];
-		GameManager gm;
-		Board board;
-		boolean start = false; 
-		boolean host = false;
+		String url = "127.0.0.1";
+		int port = 8000;
 		
-		// Client
-		while(!start)
-		{
-			// Print it to the server
+		
+		BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
+		while(true){
 			if(in.ready()){
 				input = in.readLine();
 				args = input.split(" ");
-				switch(args[0]){
-				case "Join":
-					// Wrap number in json object
-				case "Start":
-				 // if board and gm is not null
-					// Make the deck
-					// Create the hand
-					// Encode through JSON
-					// Send Start, and data
-				case "Msg":
-					// Wrap message in json object
-				case "Create":
-					// thing special.
-				}
-				req.println(input);
+				// Do things
+				// Create a persistent socket on
+				// msgs Create,Join
 			}
-			// Read input from server
-			if(server.ready()){
-				output = server.readLine();
-				JSONObject json = (JSONObject)parser.parse(output);
-				switch(app.getJSON(json,"Event")){
-				case "Create":
-					host = true;
-				case "Start":
-					start = true;
-					if(host){
-						// Server will write number of players
-						int numPlayers = Integer.parseInt(app.getJSON(json,"players"));
-						board = new Board(numPlayers);
-						gm = new GameManager(numPlayers,server,board);
-						// 
-					}
-				break;
-				case "Sync":
-					output = server.readLine();
-					int numPlayers = Integer.parseInt(app.getJSON(json,"players"));
-					board = new Board(numPlayers);
-					gm = new GameManager(numPlayers,server,board);
-					// Sync data with json.deck , json.hands
-					break;
-				case "Join":
-					// Increment a player count;
-				case "Leave":
-					// Decrement a player count;
-				case "Error":
-				case "Msg":
-					app.log(app.getJSON(json,"msg"));
-					break;
-				default:
-					app.log("gg");
-				}
+			// if a persistent socket was made..
+				// poll it for response.
+		}
+		
+		// Client
+		while(!app.start)
+		{
+			if(in.ready()){
+				input = in.readLine();
+				app.request = new Connection(url,port);
+				app.handleReq(input);
+				
+				// wait for server response
+				while(!app.request.res.ready());
+				output = app.request.res.readLine();
+				app.handleRes(output);
+				
+				// Done close the socket
+				app.request.close();
 			}
 		}
+		
+		
+		// Game things	
 		while(true){
 			if(gm.currPlayer == 1){
 				if(in.ready()){
@@ -123,7 +119,73 @@ public class Client{
 	{
 		System.out.println(arg);
 	}
+	
 	public String getJSON(JSONObject obj,String key){
 		return obj.get(key).toString();
+	}
+	
+	public void handleReq(String msg){
+		String[] args = msg.split(" ");
+		
+		JSONObject json=new JSONObject();
+		StringWriter out = new StringWriter();
+		//obj.writeJSONString(out);
+		//String eventMsg = obj.toString();
+		
+		
+		switch(args[0]){
+			case "Join":
+				json.put("Request","Join");
+				json.put("roomId",args[1]);
+			case "Start":
+				if(host){
+				    if (board == null && gm == null){
+					    // Make the deck
+						// Create the hand
+						// Encode through JSON
+						// Send Start, and data
+				    }
+				}
+			case "Msg":
+				// Wrap message in json object
+			case "Create":
+				// thing special.
+		}
+	}
+	
+	public void handleRes(String json){
+		// Turn it into a json object
+		JSONObject json = (JSONObject)parser.parse(output);
+		switch(app.getJSON(json,"Event")){
+			case "Create":
+				host = true;
+			case "Start":
+				start = true;
+				if(host){
+					// Server will write number of players
+					int numPlayers = Integer.parseInt(app.getJSON(json,"players"));
+					board = new Board(numPlayers);
+					gm = new GameManager(numPlayers,server,board);
+					// 
+				}
+				break;
+			case "Sync":
+				output = server.readLine();
+				int numPlayers = Integer.parseInt(app.getJSON(json,"players"));
+				board = new Board(numPlayers);
+				gm = new GameManager(numPlayers,server,board);
+				// Sync data with json.deck , json.hands
+				break;
+			case "Join":
+				// Increment a player count;
+			case "Leave":
+				// Decrement a player count;
+			case "Error":
+			case "Msg":
+				app.log(app.getJSON(json,"msg"));
+				break;
+			default:
+				app.log("gg");
+		}
 	}
 }
