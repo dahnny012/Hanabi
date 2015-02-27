@@ -43,6 +43,8 @@ public class Client{
 	boolean host = false;
 	GameManager gm;
 	Board board;
+	int userId;
+	int roomId;
 	
 	public static void main(String[] arg) throws ParseException
 	{
@@ -56,19 +58,7 @@ public class Client{
 		
 		
 		BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
-		while(true){
-			if(in.ready()){
-				input = in.readLine();
-				args = input.split(" ");
-				// Do things
-				// Create a persistent socket on
-				// msgs Create,Join
-			}
-			// if a persistent socket was made..
-				// poll it for response.
-		}
 		
-		// Client
 		while(!app.start)
 		{
 			if(in.ready()){
@@ -76,23 +66,29 @@ public class Client{
 				app.request = new Connection(url,port);
 				int keep = app.handleReq(input);
 				
-				// wait for server response
-				while(!app.request.res.ready());
-				output = app.request.res.readLine();
-				app.handleRes(output);
-				
-				if(keep != 1){
-					app.request.close();
+				if(app.server != null){
+					if(app.server.res.ready()){
+						// Listens for Sync, msg , join , leave
+						output = app.request.res.readLine();
+						app.handleRes(output);
+					}
 				}
 				else{
-					// shallow copy but it should be fine. Might want to test this though
-					app.server = app.request;
+					while(!app.request.res.ready());
+					output = app.request.res.readLine();
+					app.handleRes(output);
+					
+					if(keep != 1){
+						app.request.close();
+					}
+					else{
+						app.server = app.request;
+					}
 				}
 			}
 		}
 		
-		
-		// Game things	
+		// Game Startooo
 		while(true){
 			if(gm.currPlayer == 1){
 				if(in.ready()){
@@ -125,10 +121,13 @@ public class Client{
 		System.out.println(arg);
 	}
 	
-	public String getJSON(JSONObject obj,String key){
-		return obj.get(key).toString();
+	public String getJSON(JSONObject json,String key){
+		return json.get(key).toString();
 	}
-	
+	public void signJSON(JSONObject json){
+		json.put("userId",userId);
+		json.put("roomId",roomId);
+	}
 	public int handleReq(String msg){
 		int keep = 0;
 		String[] args = msg.split(" ");
@@ -147,14 +146,17 @@ public class Client{
 			case "Start":
 				if(host){
 				    json.put("Request","Start");
-					json.put("roomId",args[1]);
+					signJSON(json);
 					// json put board info;
+						// hands
+						// board
 				}else{
 					return keep;
 				}
 				break;
 			case "Msg":
 				json.put("Request","Msg");
+				signJSON(json);
 				String content = "";
 				
 				// Compile the message
@@ -164,6 +166,11 @@ public class Client{
 				}
 				json.put("msg",content);
 				break;
+			case "Leave":
+				json.put("Request","Leave");
+				signJSON(json);
+				server.close();
+				server = null;
 		}
 		json.writeJSONString(out);
 		String eventMsg = json.toString();
@@ -179,6 +186,8 @@ public class Client{
 		switch(getJSON(json,"Event")){
 			case "Create":
 				host = true;
+				roomId = getJSON(json,"roomId");
+				userId = getJSON(json,"userId");
 				break;
 			case "Start":
 				start = true;
@@ -203,15 +212,15 @@ public class Client{
 				gm = new GameManager();
 				break;
 			case "Join":
-				// Increment a player count;
+				roomId = getJSON(json,"roomId");
+				userId = getJSON(json,"userId");
 			case "Leave":
-				// Decrement a player count;
 			case "Error":
 			case "Msg":
-				app.log(app.getJSON(json,"msg"));
+				log(getJSON(json,"msg"));
 				break;
 			default:
-				app.log("gg");
+				log("gg");
 		}
 	}
 }

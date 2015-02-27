@@ -161,7 +161,7 @@ class Router{
         return router;
 	}
 	
-	public boolean handle(ClientSocket client) throws IOException{
+	public void handle(ClientSocket client) throws IOException{
 		String route;
 		String[] args;
 		String request;
@@ -275,18 +275,14 @@ class Worker implements Runnable{
 				System.out.println("sem fked up");
 			}
 			ClientSocket task = clients.getWork();
-			boolean reenter = true;
 			if(task != null){
 				Router route = Router.getInstance();
 				try {
-					reenter = route.handle(task);
+					route.handle(task);
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
-				if(reenter){
-					clients.addConnection(task);
 					sem.produce();
-				}
 				//System.out.println("Semaphore: " + sem.signals);
 				//clients.print();
 			}
