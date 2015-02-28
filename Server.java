@@ -8,27 +8,34 @@ import org.json.simple.JSONObject;
 
 
 class Handlers{
-	HashMap<Integer,List<ClientSocket>> rooms = new HashMap<Integer,List<ClientSocket>>();
+	HashMap<Integer,HashMap<Integer,ClientSocket>> rooms = 
+			new HashMap<Integer,HashMap<Integer,ClientSocket>>();
+	
 	public void join(ClientSocket client,JSONObject args){
 		try{
+			
 			int roomNum = Integer.parseInt(args.get("roomNum"));
-			List<ClientSocket> room = rooms.get(roomNum);
+			
+			if(client.roomNum != 0)
+				leave(client);
+			
+			HashMap<Integer, ClientSocket> room = rooms.get(roomNum);
 			client.roomNum = roomNum;
 			String msg;
 			
-			room.add(client);
+			room.put(client.id, client);
 			System.out.println("Added player to room " + roomNum);
-			//client.write("JOINED " + roomNum);
 			
 			JSONObject joinMsg=new JSONObject();
 			StringWriter out = new StringWriter();
 			joinMsg.put("Event","Join");
-			joinMsg.put("roomId",roomNum);
+			joinMsg.put("roomNum",roomNum);
+			joinMsg.put("userId",client.id);
 			joinMsg.writeJSONString(out);
 			msg = joinMsg.toString();
 			
 			client.write(msg);
-			broadcast(client.roomNum,room,client,msg);
+			broadcast(roomNum,room,client,msg);
 		}
 		catch(Exception e){
 			System.out.println(e);
@@ -37,27 +44,30 @@ class Handlers{
 	}
 	
 	public void create(ClientSocket client) throws IOException{
-		List<ClientSocket> sockets = new ArrayList<ClientSocket>();
+		if(client.roomNum != 0)
+			leave(client);
+		
+		HashMap<Integer, ClientSocket> room = new HashMap<Integer, ClientSocket>();
 		Random rando = new Random();
 		int roomNum = rando.nextInt(10000);
 		
-		sockets.add(client);
+		room.put(client.id,client);
 		client.roomNum = roomNum;
-		rooms.put(roomNum,sockets);
+		rooms.put(roomNum,room);
 		System.out.println("Created " + roomNum);
 		//client.write("CREATE "+ Integer.toString(roomNum));
 		
 		JSONObject obj=new JSONObject();
 		StringWriter out = new StringWriter();
 		obj.put("Event","Create");
-		obj.put("roomId",roomNum);
+		obj.put("roomNum",roomNum);
 		obj.writeJSONString(out);
 		client.write(obj.toString());
 	}
 	
 	public void message(ClientSocket client,JSONObject args) throws IOException
 	{
-		List<ClientSocket> room = rooms.get(client.roomNum);
+		HashMap<Integer, ClientSocket> room = rooms.get(client.roomNum);
 		try{
 		String msg = args.get("msg");
 		
@@ -79,7 +89,7 @@ class Handlers{
 	public void leave(ClientSocket client) throws IOException{
 		// If in a game
 		if(client.roomNum > 0){
-			List<ClientSocket>room = rooms.get(client.roomNum);
+			HashMap<Integer, ClientSocket> room = rooms.get(client.roomNum);
 			
 			JSONObject obj=new JSONObject();
 			StringWriter out = new StringWriter();
@@ -87,13 +97,12 @@ class Handlers{
 			obj.put("msg","A Player has left");
 			obj.writeJSONString(out);
 			String eventMsg = obj.toString();
-			
-			for(int i=0; i<room.size(); i++){
-				ClientSocket player = room.get(i);
+
+			for(ClientSocket player :room.values()){
 				if(player.id == client.id){
 					broadcast(client.roomNum, room, client,eventMsg);
-					room.remove(i);
-				} 
+					room.remove(client.id);
+				}
 			}
 			return;
 		}
@@ -101,7 +110,7 @@ class Handlers{
 	
 	public void move(ClientSocket client,JSONObject args){
 		// Broadcast move to all players
-		List<ClientSocket> room = rooms.get(client.roomNum);
+		HashMap<Integer, ClientSocket> room = rooms.get(client.roomNum);
 		try{
 		String msg = args.get("move");
 		
@@ -120,16 +129,14 @@ class Handlers{
 		}
 	}
 	
-	private void broadcast(int roomNum,List<ClientSocket> room,ClientSocket client,String msg) throws IOException{
+	private void broadcast(int roomNum,HashMap<Integer,ClientSocket> room,ClientSocket client,String msg) throws IOException{
 		System.out.println("Room size: " + room.size());
-		for(int i=0; i<room.size(); i++){
-			ClientSocket player = room.get(i);
+		for(ClientSocket player :room.values()){
 			if(player.id != client.id){
 				player.write(msg);
 			}
 		}
 	}
-	
 	
 	public void start(ClientSocket client){
 		// Read the data
@@ -137,7 +144,7 @@ class Handlers{
 		// broadcast the data to the room
 	}
 	
-	private void writeError(ClientSocket client,String msg){
+	public void writeError(ClientSocket client,String msg){
 		JSONObject obj=new JSONObject();
 		StringWriter out = new StringWriter();
 		obj.put("Event","Error");
@@ -165,45 +172,43 @@ class Router{
 		String route;
 		String[] args;
 		String request;
+		JSONObject json;
 		try{
-			if(client.req.ready()){
-				request = client.read();
-				JSONObject json = (JSONObject)parser.parse(output);
-				route = json.get("Route");
-				System.out.println("Route: " + route);
-			}else{
-				return true;
-			}
+			request = client.read();
+			JSONObject json = (JSONObject)parser.parse(output);
+			sign(client,json);
+			route = json.get("Route");
+			System.out.println("Route: " + route);
 		}
 		catch(IOException io){
 			System.out.println("Error reading");
 			System.out.println(io);
-			return true;
+			handle.writeError(client, "Error reading");
+			return;
 		}
 		switch(route){
 		case "Join":
 			System.out.println("Proceding to Join");
 			handle.join(client,json);
-			return true;
 		case "Create":
 			System.out.println("Proceding to Create");
 			handle.create(client);
-			return true;
 		case "Msg":
 			System.out.println("Proceding to Message");
 			handle.message(client,json);
-			return true;
 		case "Leave":
 			System.out.println("Proceding to leave");
 			handle.leave(client);
-			return false;
 		case "Move":
 			System.out.println("Proceding to leave");
 			handle.move(client,json);
-			return true;
 		default:
-			return true;
 		}
+	}
+	
+	public void sign(ClientSocket client,JSONObject json){
+		client.id = Integer.parseInt(json.get("userId"));
+		client.roomNum = Integer.parseInt(json.get("roomNum"));
 	}
 }
 
@@ -304,8 +309,6 @@ class ClientSocket{
 	PrintWriter res;
 	BufferedReader req;
 	public ClientSocket(Socket socket) throws IOException{
-		Random rando = new Random();
-		id = rando.nextInt(10000);
 		this.socket = socket;
 		req = new BufferedReader(new InputStreamReader(this.socket.getInputStream()));
 		res = new PrintWriter(this.socket.getOutputStream());
@@ -326,8 +329,10 @@ class ClientSocket{
 class Clients{
 	private static Clients clients;
 	private ArrayList<ClientSocket> connections;
+	private HashMap<Integer,ClientSocket> users;
 	private Clients(){
 		this.connections = new ArrayList<ClientSocket>();
+		this.users = new HashMap<Integer,ClientSocket>();
 	}
 	
 	public static Clients getInstance(){
@@ -338,6 +343,13 @@ class Clients{
 	
 	public synchronized void addConnection(ClientSocket client){
 		connections.add(client);
+	}
+	
+	public synchronized void addUser(ClientSocket client,int id){
+		users.put(id, client);
+	}
+	public synchronized ClientSocket getUser(int id){
+		return users.get(id);
 	}
 	
 	public ClientSocket getWork(){

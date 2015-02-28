@@ -44,7 +44,7 @@ public class Client{
 	GameManager gm;
 	Board board;
 	int userId;
-	int roomId;
+	int roomNum;
 	
 	public static void main(String[] arg) throws ParseException
 	{
@@ -77,7 +77,6 @@ public class Client{
 					while(!app.request.res.ready());
 					output = app.request.res.readLine();
 					app.handleRes(output);
-					
 					if(keep != 1){
 						app.request.close();
 					}
@@ -126,17 +125,21 @@ public class Client{
 	}
 	public void signJSON(JSONObject json){
 		json.put("userId",userId);
-		json.put("roomId",roomId);
+		json.put("roomNum",roomNum);
 	}
 	public int handleReq(String msg){
 		int keep = 0;
 		String[] args = msg.split(" ");
 		JSONObject json=new JSONObject();
+		signJSON(json);
 		StringWriter out = new StringWriter();
 		switch(args[0]){
 			case "Join":
+				if(roomNum != 0){
+					System.out.println("Leaving current game");
+				}
 				json.put("Request","Join");
-				json.put("roomId",args[1]);
+				json.put("roomNum",args[1]);
 				keep = 1;
 				break;
 			case "Create":
@@ -146,17 +149,13 @@ public class Client{
 			case "Start":
 				if(host){
 				    json.put("Request","Start");
-					signJSON(json);
 					// json put board info;
 						// hands
 						// board
-				}else{
-					return keep;
 				}
-				break;
+				return keep;
 			case "Msg":
 				json.put("Request","Msg");
-				signJSON(json);
 				String content = "";
 				
 				// Compile the message
@@ -168,7 +167,6 @@ public class Client{
 				break;
 			case "Leave":
 				json.put("Request","Leave");
-				signJSON(json);
 				server.close();
 				server = null;
 		}
@@ -186,7 +184,7 @@ public class Client{
 		switch(getJSON(json,"Event")){
 			case "Create":
 				host = true;
-				roomId = getJSON(json,"roomId");
+				roomNum = getJSON(json,"roomNum");
 				userId = getJSON(json,"userId");
 				break;
 			case "Start":
@@ -212,7 +210,7 @@ public class Client{
 				gm = new GameManager();
 				break;
 			case "Join":
-				roomId = getJSON(json,"roomId");
+				roomNum = getJSON(json,"roomNum");
 				userId = getJSON(json,"userId");
 			case "Leave":
 			case "Error":
